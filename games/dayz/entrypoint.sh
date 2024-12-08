@@ -26,7 +26,7 @@ NC='\033[0m' # No Color
 # validateServer, extraFlags, updateAttempt, modifiedStartup, allMods, CLIENT_MODS
 # Vérifier si le dossier save_logs existe, sinon le créer
 SAVE_LOGS_DIR="./save_logs"
-PROFILE_DIR="./profil"
+PROFILE_DIR="./profiles"
 
 if [ ! -d "$SAVE_LOGS_DIR" ]; then
     echo "Le dossier save_logs n'existe pas. Création en cours..."
@@ -34,15 +34,19 @@ if [ ! -d "$SAVE_LOGS_DIR" ]; then
 fi
 
 # Déplacer les fichiers de log dans save_logs
-LOG_FILES=("*.log" "*.amd" "*.RPT" "*.mdmp")
-for file in "${LOG_FILES[@]}"; do
-    mv "$PROFILE_DIR/$file" "$SAVE_LOGS_DIR" 2>/dev/null
+LOG_EXTENSIONS=("log" "amd" "RPT" "mdmp")
+for ext in "${LOG_EXTENSIONS[@]}"; do
+    # Utilisation de find pour trouver et déplacer les fichiers
+    find "$PROFILE_DIR" -type f -name "*.$ext" -exec mv {} "$SAVE_LOGS_DIR" \;
+    
+    # Vérification si des fichiers ont été déplacés
     if [ $? -eq 0 ]; then
-        echo "Fichiers $file déplacés avec succès vers $SAVE_LOGS_DIR."
+        echo "Fichiers .$ext déplacés avec succès vers $SAVE_LOGS_DIR."
     else
-        echo "Aucun fichier $file trouvé à déplacer."
+        echo "Aucun fichier .$ext trouvé à déplacer."
     fi
 done
+
 ## === DEFINE FUNCTIONS ===
 
 # Runs SteamCMD with specified variables and performs error handling.
