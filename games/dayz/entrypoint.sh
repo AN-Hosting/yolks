@@ -24,7 +24,25 @@ NC='\033[0m' # No Color
 
 ## === GLOBAL VARS ===
 # validateServer, extraFlags, updateAttempt, modifiedStartup, allMods, CLIENT_MODS
+# Vérifier si le dossier save_logs existe, sinon le créer
+SAVE_LOGS_DIR="./save_logs"
+PROFILE_DIR="./profil"
 
+if [ ! -d "$SAVE_LOGS_DIR" ]; then
+    echo "Le dossier save_logs n'existe pas. Création en cours..."
+    mkdir -p "$SAVE_LOGS_DIR"
+fi
+
+# Déplacer les fichiers de log dans save_logs
+LOG_FILES=("*.log" "*.amd" "*.RPT" "*.mdmp")
+for file in "${LOG_FILES[@]}"; do
+    mv "$PROFILE_DIR/$file" "$SAVE_LOGS_DIR" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "Fichiers $file déplacés avec succès vers $SAVE_LOGS_DIR."
+    else
+        echo "Aucun fichier $file trouvé à déplacer."
+    fi
+done
 ## === DEFINE FUNCTIONS ===
 
 # Runs SteamCMD with specified variables and performs error handling.
