@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Configuration par défaut
+INTERNAL_IP=${INTERNAL_IP:-"127.0.0.1"}  # Utilise 127.0.0.1 si INTERNAL_IP n'est pas défini
+
 # Fonction pour envoyer un message au serveur
 send_message() {
     bercon -i "${INTERNAL_IP}" -p "${RCON_PORT}" -P "${RCON_PASSWORD}" exec -- "say -1 \"$1\""
@@ -11,8 +14,19 @@ lock_server() {
     send_message "Le serveur est maintenant verrouillé. Plus aucune nouvelle connexion possible."
 }
 
+# Vérification des variables requises
+if [ -z "${RCON_PORT}" ] || [ -z "${RCON_PASSWORD}" ]; then
+    echo "Erreur: RCON_PORT et RCON_PASSWORD doivent être définis"
+    echo "RCON_PORT actuel: ${RCON_PORT}"
+    echo "RCON_PASSWORD défini: $( [ -n "${RCON_PASSWORD}" ] && echo "oui" || echo "non" )"
+    exit 1
+fi
+
 # Fonction de redémarrage avec notifications
 dayz_restart() {
+    echo "Démarrage de la séquence de redémarrage"
+    echo "Utilisation de: IP=${INTERNAL_IP}, PORT=${RCON_PORT}"
+
     # 30 minutes avant
     send_message "Le serveur redémarrera dans 30 minutes"
     sleep 600  # Attendre 10 minutes
@@ -56,4 +70,4 @@ dayz_restart() {
 }
 
 # Exécution du redémarrage
-dayz_restart 
+dayz_restart

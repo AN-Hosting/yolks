@@ -26,7 +26,8 @@ RUN         dpkg --add-architecture i386 \
                 lib32stdc++6 \
                 libcap2 \
                 libnss-wrapper \
-                tini
+                tini \
+                cron
 
 ## install rcon client (bercon)
 RUN         cd /tmp/ \
