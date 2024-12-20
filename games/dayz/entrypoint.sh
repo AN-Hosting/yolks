@@ -315,8 +315,11 @@ fi
 # Configuration du redémarrage automatique
 if [ -n "${AUTO_RESTART_HOURS}" ]; then
     echo "Configuration du redémarrage automatique pour les heures: ${AUTO_RESTART_HOURS}"
-    (crontab -l 2>/dev/null; echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh") | crontab -
-    service cron start
+    echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > /var/spool/cron/crontabs/container
+    chmod 600 /var/spool/cron/crontabs/container
+    crontab /var/spool/cron/crontabs/container
+    service cron start || /usr/sbin/cron -f &
+    echo "Cron service démarré"
 else
     echo "Redémarrage automatique désactivé (AUTO_RESTART_HOURS non défini)"
 fi

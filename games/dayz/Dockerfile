@@ -27,7 +27,8 @@ RUN         dpkg --add-architecture i386 \
                 libcap2 \
                 libnss-wrapper \
                 tini \
-                cron
+                cron \
+            && rm -rf /var/lib/apt/lists/*
 
 ## install rcon client (bercon)
 RUN         cd /tmp/ \
@@ -62,3 +63,9 @@ STOPSIGNAL  SIGINT
 
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--"]
 CMD         ["/entrypoint.sh"]
+
+## Setup cron
+RUN         mkdir -p /var/spool/cron/crontabs && \
+            touch /var/spool/cron/crontabs/container && \
+            chmod 600 /var/spool/cron/crontabs/container && \
+            chown container:container /var/spool/cron/crontabs/container
