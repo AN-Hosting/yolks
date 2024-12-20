@@ -29,13 +29,13 @@ RUN         dpkg --add-architecture i386 \
                 tini \
                 cron \
                 busybox \
+                procps \
             && rm -rf /var/lib/apt/lists/*
 
-## install rcon client (bercon)
-RUN         cd /tmp/ \
-            && curl -sSL https://github.com/WoozyMasta/bercon/releases/download/1.0.0/bercon > bercon \
-            && mv bercon /usr/local/bin/ \
-            && chmod +x /usr/local/bin/bercon
+## Install bercon directly from GitHub releases
+RUN         curl -#SfLo /usr/bin/bercon \
+            https://github.com/WoozyMasta/bercon/releases/latest/download/bercon \
+            && chmod +x /usr/bin/bercon
 
 ## Configure locale
 RUN         update-locale lang=en_US.UTF-8 \
@@ -51,20 +51,28 @@ ADD         passwd.template /passwd.template
 ## Setup user and working directory
 RUN         useradd -m -d /home/container -s /bin/bash container
 
-## Setup cron alternative with busybox
-RUN         mkdir -p /etc/cron.d \
-            && touch /etc/cron.d/container-cron \
-            && chmod 0644 /etc/cron.d/container-cron \
-            && chown container:container /etc/cron.d/container-cron
+## Setup cron directories and permissions
+RUN         mkdir -p /home/container/cron \
+            && chown -R container:container /home/container/cron \
+            && chmod -R 755 /home/container/cron
 
 ## Copy scripts before changing user
 COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
-COPY        --chown=container:container ./restart_dayz.sh /home/container/
-RUN         chmod +x /entrypoint.sh && chmod +x /home/container/restart_dayz.sh
+RUN         chmod +x /entrypoint.sh
+
+## Create log directory
+RUN         mkdir -p /home/container/logs \
+            && chown -R container:container /home/container/logs
 
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
+
+## Add environment variables for bercon
+## Note: RCON_PORT and RCON_PASSWORD are provided by Pterodactyl
+ENV         BERCON_IP=127.0.0.1
+ENV         BERCON_TIMEOUT=5000
+ENV         BERCON_KEEPALIVE=30
 
 STOPSIGNAL  SIGINT
 

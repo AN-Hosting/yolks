@@ -37,7 +37,87 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Configuration du redémarrage automatique - Déplacé au début
+# Fonction de redémarrage avec bercon
+restart_server() {
+    log_info "Démarrage de la procédure de redémarrage..."
+    
+    # Vérification des variables requises
+    if [ -z "${RCON_PASSWORD}" ]; then
+        log_error "RCON_PASSWORD non défini"
+        return 1
+    fi
+
+    if [ -z "${RCON_PORT}" ]; then
+        log_warning "RCON_PORT non défini, utilisation du port par défaut 2315"
+        RCON_PORT="2315"
+    fi
+    
+    # Configuration de bercon
+    export BERCON_IP="127.0.0.1"
+    export BERCON_PORT="${RCON_PORT}"
+    export BERCON_PASSWORD="${RCON_PASSWORD}"
+    
+    log_info "Configuration RCON - Port: ${RCON_PORT}"
+    
+    # Messages d'avertissement aux joueurs
+    log_info "Envoi des messages de redémarrage..."
+    
+    # 30 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 30 minutes\""
+    sleep 600 # 10 minutes
+    
+    # 20 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 20 minutes\""
+    sleep 600 # 10 minutes
+    
+    # 10 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 10 minutes\""
+    sleep 300 # 5 minutes
+    
+    # 5 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 5 minutes\""
+    sleep 60 # 1 minute
+    
+    # 4 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 4 minutes\""
+    sleep 60
+    
+    # 3 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 3 minutes\""
+    sleep 60
+    
+    # 2 minutes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 2 minutes - SERVEUR VERROUILLÉ\""
+    # Verrouillage du serveur
+    log_info "Verrouillage du serveur..."
+    bercon exec -- '#lock'
+    sleep 60
+    
+    # 1 minute avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 1 minute\""
+    sleep 30
+    
+    # 30 secondes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 30 secondes\""
+    sleep 20
+    
+    # 10 secondes avant
+    bercon exec -- "say -1 \"Le serveur redémarre dans 10 secondes\""
+    sleep 10
+    
+    # Arrêt du serveur
+    log_info "Arrêt du serveur..."
+    bercon exec -- '#shutdown'
+    
+    # Attente de l'arrêt complet
+    sleep 10
+    
+    # Redémarrage du serveur
+    log_info "Redémarrage du serveur..."
+    exec "${modifiedStartup}"
+}
+
+# Configuration du redémarrage automatique
 log_info "Initialisation du système de redémarrage automatique..."
 
 if [ -n "${AUTO_RESTART_HOURS}" ]; then
@@ -51,8 +131,26 @@ if [ -n "${AUTO_RESTART_HOURS}" ]; then
     if [ $? -eq 0 ]; then
         log_success "Dossier cron créé: ${CRON_DIR}"
         
-        # Création du fichier cron
-        echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > "${CRON_DIR}/crontab"
+        # Création du fichier cron avec la commande bercon
+        # Programme le début de la séquence 30 minutes avant l'heure spécifiée
+        IFS=',' read -ra HOURS <<< "${AUTO_RESTART_HOURS}"
+        CRON_ENTRIES=""
+        
+        for hour in "${HOURS[@]}"; do
+            # Calcul de l'heure d'avertissement (30 minutes avant)
+            warning_hour=$((hour - 1))
+            warning_minute=30
+            
+            # Gestion du passage à l'heure précédente
+            if [ $hour -eq 0 ]; then
+                warning_hour=23
+            fi
+            
+            CRON_ENTRIES+="${warning_minute} ${warning_hour} * * * /usr/bin/env bash -c 'source /home/container/entrypoint.sh && restart_server'\n"
+        done
+        
+        echo -e "${CRON_ENTRIES}" > "${CRON_DIR}/crontab"
+        
         if [ $? -eq 0 ]; then
             log_success "Fichier cron créé avec succès"
             log_info "Contenu du fichier cron:"
@@ -72,14 +170,6 @@ if [ -n "${AUTO_RESTART_HOURS}" ]; then
         log_error "Erreur lors de la création du dossier cron"
     fi
 
-    # Vérification du script de redémarrage
-    if [ ! -f "/home/container/restart_dayz.sh" ]; then
-        log_error "Script de redémarrage non trouvé: /home/container/restart_dayz.sh"
-    else
-        chmod +x /home/container/restart_dayz.sh
-        log_success "Script de redémarrage trouvé et rendu exécutable"
-    fi
-
     # Démarrage du service cron avec busybox
     log_info "Démarrage du service cron avec busybox..."
     if command -v busybox >/dev/null 2>&1; then
@@ -90,7 +180,10 @@ if [ -n "${AUTO_RESTART_HOURS}" ]; then
         busybox crond -c "${CRON_DIR}" -L "${CRON_DIR}/cron.log" -f &
         if [ $? -eq 0 ]; then
             log_success "Service cron démarré avec succès"
-            log_info "Cron configuré pour s'exécuter aux heures: ${AUTO_RESTART_HOURS}"
+            log_info "Redémarrages programmés aux heures: ${AUTO_RESTART_HOURS}"
+            log_info "Les avertissements commenceront 30 minutes avant chaque redémarrage"
+            log_info "Le serveur sera verrouillé 2 minutes avant chaque redémarrage"
+            log_info "Port RCON: ${RCON_PORT:-2315}"
         else
             log_error "Erreur lors du démarrage du service cron"
         fi
