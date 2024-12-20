@@ -332,58 +332,25 @@ fi
 
 # Configuration du redémarrage automatique
 if [ -n "${AUTO_RESTART_HOURS}" ]; then
-    log_info "Configuration du redémarrage automatique..."
-    log_info "AUTO_RESTART_HOURS=${AUTO_RESTART_HOURS}"
+    log_info "Configuration du redémarrage automatique pour les heures: ${AUTO_RESTART_HOURS}"
     
-    # Utilisation du dossier home/container pour le cron
-    CRON_DIR="/home/container/cron"
-    mkdir -p "${CRON_DIR}"
-    
-    if [ $? -eq 0 ]; then
-        log_success "Dossier cron créé: ${CRON_DIR}"
-        
-        # Création du fichier cron
-        echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > "${CRON_DIR}/crontab"
-        if [ $? -eq 0 ]; then
-            log_success "Fichier cron créé avec succès"
-            log_info "Contenu du fichier cron:"
-            cat "${CRON_DIR}/crontab"
-            
-            # Configuration des permissions
-            chmod 0644 "${CRON_DIR}/crontab"
-            if [ $? -eq 0 ]; then
-                log_success "Permissions du fichier cron configurées"
-            else
-                log_error "Erreur lors de la configuration des permissions"
-            fi
-        else
-            log_error "Erreur lors de la création du fichier cron"
-        fi
+    # Vérification du format de AUTO_RESTART_HOURS
+    if ! [[ "${AUTO_RESTART_HOURS}" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
+        log_error "Format AUTO_RESTART_HOURS invalide: ${AUTO_RESTART_HOURS}"
+        log_error "Format attendu: nombres séparés par des virgules (ex: 0,4,8,12,18)"
     else
-        log_error "Erreur lors de la création du dossier cron"
+        log_success "Format AUTO_RESTART_HOURS valide: ${AUTO_RESTART_HOURS}"
     fi
 
-    # Vérification du script de redémarrage
-    if [ ! -f "/home/container/restart_dayz.sh" ]; then
-        log_error "Script de redémarrage non trouvé: /home/container/restart_dayz.sh"
-    else
-        chmod +x /home/container/restart_dayz.sh
-        log_success "Script de redémarrage trouvé et rendu exécutable"
-    fi
-
-    # Démarrage du service cron avec busybox
+    # Configuration cron
+    echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > /etc/cron.d/container-cron
+    chmod 0644 /etc/cron.d/container-cron
+    log_success "Configuration cron créée: $(cat /etc/cron.d/container-cron)"
+    
+    # Démarrage du service cron
     log_info "Démarrage du service cron avec busybox..."
-    if command -v busybox >/dev/null 2>&1; then
-        busybox crond -c "${CRON_DIR}" -L "${CRON_DIR}/cron.log" -f &
-        if [ $? -eq 0 ]; then
-            log_success "Service cron démarré avec succès"
-            log_info "Cron configuré pour s'exécuter aux heures: ${AUTO_RESTART_HOURS}"
-        else
-            log_error "Erreur lors du démarrage du service cron"
-        fi
-    else
-        log_error "busybox n'est pas installé"
-    fi
+    busybox crond -L /dev/null -f &
+    log_success "Service cron démarré"
 else
     log_warning "Redémarrage automatique désactivé (AUTO_RESTART_HOURS non défini)"
 fi
