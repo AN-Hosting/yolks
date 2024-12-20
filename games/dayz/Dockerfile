@@ -47,18 +47,17 @@ ADD         passwd.template /passwd.template
 
 ## Setup user and working directory
 RUN         useradd -m -d /home/container -s /bin/bash container
+
+## Copy scripts before changing user
+COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
+COPY        --chown=container:container ./restart_dayz.sh /home/container/
+RUN         chmod +x /entrypoint.sh && chmod +x /home/container/restart_dayz.sh
+
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
 
 STOPSIGNAL  SIGINT
 
-## Copy over and execute entrypoint.sh via Tini
-COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
-RUN         chmod +x /entrypoint.sh
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--"]
 CMD         ["/entrypoint.sh"]
-
-## Ajouter après les autres installations
-COPY        --chown=container:container ./restart_dayz.sh /home/container/
-RUN         chmod +x /home/container/restart_dayz.sh
