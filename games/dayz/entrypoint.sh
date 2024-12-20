@@ -335,28 +335,32 @@ if [ -n "${AUTO_RESTART_HOURS}" ]; then
     log_info "Configuration du redémarrage automatique..."
     log_info "AUTO_RESTART_HOURS=${AUTO_RESTART_HOURS}"
     
-    # Vérification du dossier cron.d
-    if [ ! -d "/etc/cron.d" ]; then
-        mkdir -p /etc/cron.d
-        log_success "Dossier /etc/cron.d créé"
-    fi
-
-    # Création du fichier cron
-    echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > /etc/cron.d/container-cron
+    # Utilisation du dossier home/container pour le cron
+    CRON_DIR="/home/container/cron"
+    mkdir -p "${CRON_DIR}"
+    
     if [ $? -eq 0 ]; then
-        log_success "Fichier cron créé avec succès"
-        log_info "Contenu du fichier cron:"
-        cat /etc/cron.d/container-cron
+        log_success "Dossier cron créé: ${CRON_DIR}"
+        
+        # Création du fichier cron
+        echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh" > "${CRON_DIR}/crontab"
+        if [ $? -eq 0 ]; then
+            log_success "Fichier cron créé avec succès"
+            log_info "Contenu du fichier cron:"
+            cat "${CRON_DIR}/crontab"
+            
+            # Configuration des permissions
+            chmod 0644 "${CRON_DIR}/crontab"
+            if [ $? -eq 0 ]; then
+                log_success "Permissions du fichier cron configurées"
+            else
+                log_error "Erreur lors de la configuration des permissions"
+            fi
+        else
+            log_error "Erreur lors de la création du fichier cron"
+        fi
     else
-        log_error "Erreur lors de la création du fichier cron"
-    fi
-
-    # Configuration des permissions
-    chmod 0644 /etc/cron.d/container-cron
-    if [ $? -eq 0 ]; then
-        log_success "Permissions du fichier cron configurées"
-    else
-        log_error "Erreur lors de la configuration des permissions"
+        log_error "Erreur lors de la création du dossier cron"
     fi
 
     # Vérification du script de redémarrage
@@ -369,11 +373,11 @@ if [ -n "${AUTO_RESTART_HOURS}" ]; then
 
     # Démarrage du service cron avec busybox
     log_info "Démarrage du service cron avec busybox..."
-    if which busybox >/dev/null; then
-        busybox crond -L /dev/stdout -f &
+    if command -v busybox >/dev/null 2>&1; then
+        busybox crond -c "${CRON_DIR}" -L "${CRON_DIR}/cron.log" -f &
         if [ $? -eq 0 ]; then
             log_success "Service cron démarré avec succès"
-            ps aux | grep crond
+            log_info "Cron configuré pour s'exécuter aux heures: ${AUTO_RESTART_HOURS}"
         else
             log_error "Erreur lors du démarrage du service cron"
         fi
