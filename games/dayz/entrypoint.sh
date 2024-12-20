@@ -175,6 +175,7 @@ function RemoveDuplicates { #[Input: str - Output: printf of new str]
 # Fonction pour le redémarrage automatique
 function AutoRestart() {
     local restart_hours=(${AUTO_RESTART_HOURS//,/ })
+    local RESTART_FILE="/tmp/need_restart"
     
     while true; do
         for hour in "${restart_hours[@]}"; do
@@ -210,9 +211,13 @@ function AutoRestart() {
             # Si on est dans les 30 minutes avant le redémarrage
             if [ $minutes_until -le 30 ] && [ $minutes_until -ge 0 ]; then
                 case $minutes_until in
-                    30|20|10|5|4|3|2)
+                    30|20|10|5|4|3)
                         bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
                             "say -1 Le serveur redémarrera dans ${minutes_until} minutes"
+                        ;;
+                    2)
+                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Le serveur redémarrera dans 2 minutes"
                         ;;
                     1)
                         # Verrouiller le serveur
@@ -225,6 +230,12 @@ function AutoRestart() {
                         bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
                             "say -1 Redémarrage du serveur..." \
                             '#shutdown'
+                        # Créer un fichier pour indiquer qu'un redémarrage est nécessaire
+                        touch "${RESTART_FILE}"
+                        # Attendre que le serveur s'arrête complètement
+                        sleep 10
+                        # Tuer le processus principal
+                        kill -15 $(cat /tmp/.pid)
                         exit 0
                         ;;
                 esac
@@ -364,6 +375,9 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libnss_wrapper.so
 # Replace Startup Variables
 modifiedStartup=`eval echo $(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')`
 
+# Sauvegarder le PID du processus principal
+echo $$ > /tmp/.pid
+
 # Démarrer le processus de redémarrage automatique en arrière-plan si AUTO_RESTART_HOURS est défini
 if [[ -n ${AUTO_RESTART_HOURS} ]]; then
     echo -e "${GREEN}[DÉMARRAGE]:${NC} Configuration du redémarrage automatique pour les heures: ${CYAN}${AUTO_RESTART_HOURS}${NC}"
@@ -374,6 +388,12 @@ fi
 echo -e "\n${GREEN}[DÉMARRAGE]:${NC} Démarrage du serveur avec la commande suivante:"
 echo -e "${CYAN}${modifiedStartup}${NC}\n"
 ${modifiedStartup}
+
+# Vérifier si un redémarrage est nécessaire
+if [ -f "${RESTART_FILE}" ]; then
+    rm "${RESTART_FILE}"
+    exit 0
+fi
 
 if [ $? -ne 0 ]; then
     echo -e "\n${RED}[ERREUR_DÉMARRAGE]: Une erreur s'est produite lors de la tentative d'exécution de la commande de démarrage.${NC}\n"
