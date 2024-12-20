@@ -43,4 +43,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/pelican-eggs/yolks:dotnet_${{ matrix.tag }}
-            ghcr.io/parkervcp/yolks:dotnet_${{ matrix.tag }}
+            ghcr.io/an-hosting/yolks:dotnet_${{ matrix.tag }}

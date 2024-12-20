@@ -35,7 +35,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/pelican-eggs/yolks:voice_${{ matrix.tag }}
-            ghcr.io/parkervcp/yolks:voice_${{ matrix.tag }}
+            ghcr.io/an-hosting/yolks:voice_${{ matrix.tag }}
 
 
   pushx64_arm64:
@@ -67,4 +67,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/pelican-eggs/yolks:voice_${{ matrix.tag }}
-            ghcr.io/parkervcp/yolks:voice_${{ matrix.tag }}
+            ghcr.io/an-hosting/yolks:voice_${{ matrix.tag }}
