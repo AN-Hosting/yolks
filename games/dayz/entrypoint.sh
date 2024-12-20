@@ -187,7 +187,7 @@ function AutoRestart() {
             if ! [[ "$hour" =~ ^[0-9]+$ ]] || [ "$hour" -gt 23 ]; then
                 echo -e "${RED}[ERREUR]:${NC} Heure de redémarrage invalide: ${hour}"
                 continue
-            }
+            fi
             
             # Obtenir l'heure actuelle et calculer l'heure de redémarrage
             current_epoch=$(date +%s)
