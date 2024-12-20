@@ -178,13 +178,21 @@ function AutoRestart() {
     
     while true; do
         for hour in "${restart_hours[@]}"; do
-            current_time=$(date +%H:%M)
-            restart_time="${hour}:00"
+            # Obtenir l'heure actuelle et calculer l'heure de redémarrage
+            current_epoch=$(date +%s)
+            current_hour=$(date +%H)
+            current_min=$(date +%M)
             
-            # Calculer les minutes restantes jusqu'au prochain redémarrage
-            current_minutes=$(date +%H:%M -d "$current_time" +'%s')
-            restart_minutes=$(date +%H:%M -d "$restart_time" +'%s')
-            minutes_until=$((($restart_minutes - $current_minutes) / 60))
+            # Calculer l'heure de redémarrage en epoch
+            if [ "$hour" -lt "$current_hour" ]; then
+                # Si l'heure de redémarrage est passée, on calcule pour le lendemain
+                restart_epoch=$(date -d "tomorrow $hour:00" +%s)
+            else
+                restart_epoch=$(date -d "today $hour:00" +%s)
+            fi
+            
+            # Calculer les minutes restantes
+            minutes_until=$(( ($restart_epoch - $current_epoch) / 60 ))
             
             # Si on est dans les 30 minutes avant le redémarrage
             if [ $minutes_until -le 30 ] && [ $minutes_until -ge 0 ]; then
