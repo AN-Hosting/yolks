@@ -5,7 +5,7 @@ LABEL       author="David Wolfe (Red-Thirten)" maintainer="red_thirten@yahoo.com
 LABEL       org.opencontainers.image.source="https://github.com/pelican-eggs/yolks"
 LABEL       org.opencontainers.image.licenses=MIT
 
-## Update base packages and install dependencies
+## Mise à jour des paquets de base et installation des dépendances
 ENV         DEBIAN_FRONTEND=noninteractive
 RUN         dpkg --add-architecture i386 \
             && apt update \

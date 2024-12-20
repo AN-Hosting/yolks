@@ -62,7 +62,7 @@ function RunSteamCMD { #[Input: int server=0 mod=1; int id]
         updateAttempt=$((updateAttempt+1))
         
         if (( $updateAttempt > 1 )); then # Notify if not first attempt
-            echo -e "\t${YELLOW}Re-Attempting download/update in 3 seconds...${NC} (Attempt ${CYAN}${updateAttempt}${NC} of ${CYAN}${STEAMCMD_ATTEMPTS}${NC})\n"
+            echo -e "\t${YELLOW}Nouvelle tentative de téléchargement/mise à jour dans 3 secondes...${NC} (Tentative ${CYAN}${updateAttempt}${NC} sur ${CYAN}${STEAMCMD_ATTEMPTS}${NC})\n"
             sleep 3
         fi
         
@@ -78,51 +78,51 @@ function RunSteamCMD { #[Input: int server=0 mod=1; int id]
         if [[ -n $(grep -i "error\|failed" "${STEAMCMD_LOG}" | grep -iv "setlocal\|SDL\|thread") ]]; then # Catch errors (ignore setlocale, SDL, and thread priority warnings)
             # Soft errors
             if [[ -n $(grep -i "Timeout downloading item" "${STEAMCMD_LOG}") ]]; then # Mod download timeout
-                echo -e "\n${YELLOW}[UPDATE]: ${NC}Timeout downloading Steam Workshop mod: \"${CYAN}${modName}${NC}\" (${CYAN}${2}${NC})"
-                echo -e "\t(This is expected for particularly large mods)"
+                echo -e "\n${YELLOW}[MISE À JOUR]: ${NC}Délai d'attente dépassé pour le téléchargement du mod: \"${CYAN}${modName}${NC}\" (${CYAN}${2}${NC})"
+                echo -e "\t(Ceci est normal pour les mods particulièrement volumineux)"
             elif [[ -n $(grep -i "0x402\|0x6\|0x602" "${STEAMCMD_LOG}") ]]; then # Connection issue with Steam
-                echo -e "\n${YELLOW}[UPDATE]: ${NC}Connection issue with Steam servers."
-                echo -e "\t(Steam servers may currently be down, or a connection cannot be made reliably)"
+                echo -e "\n${YELLOW}[MISE À JOUR]: ${NC}Problème de connexion avec les serveurs Steam."
+                echo -e "\t(Les serveurs Steam peuvent être indisponibles ou la connexion est instable)"
             # Hard errors
             elif [[ -n $(grep -i "Password check for AppId" "${STEAMCMD_LOG}") ]]; then # Incorrect beta branch password
-                echo -e "\n${RED}[UPDATE]: ${YELLOW}Incorrect password given for beta branch. ${CYAN}Skipping download...${NC}"
-                echo -e "\t(Check your \"[ADVANCED] EXTRA FLAGS FOR STEAMCMD\" startup parameter)"
+                echo -e "\n${RED}[MISE À JOUR]: ${YELLOW}Mot de passe incorrect donné pour la branche bêta. ${CYAN}Téléchargement annulé...${NC}"
+                echo -e "\t(Vérifiez votre \"[ADVANCED] EXTRA FLAGS FOR STEAMCMD\" paramètre de démarrage)"
                 break
             # Fatal errors
             elif [[ -n $(grep -i "Invalid Password\|two-factor\|No subscription" "${STEAMCMD_LOG}") ]]; then # Wrong username/password, Steam Guard is turned on, or host is using anonymous account
-                echo -e "\n${RED}[UPDATE]: Cannot login to Steam - Improperly configured account and/or credentials"
-                echo -e "\t${YELLOW}Please contact your administrator/host and give them the following message:${NC}"
-                echo -e "\t${CYAN}Your Egg, or your client's server, is not configured with valid Steam credentials.${NC}"
-                echo -e "\t${CYAN}Either the username/password is wrong, or Steam Guard is not properly configured\n\taccording to this egg's documentation/README.${NC}\n"
+                echo -e "\n${RED}[MISE À JOUR]: Impossible de se connecter à Steam - Compte utilisateur/mot de passe non configuré correctement"
+                echo -e "\t${YELLOW}Veuillez contacter votre administrateur/hôte et leur donner le message suivant :${NC}"
+                echo -e "\t${CYAN}Votre Egg, ou le serveur de votre client, n'est pas configuré avec des identifiants Steam valides.${NC}"
+                echo -e "\t${CYAN}Soit le nom d'utilisateur/mot de passe est incorrect, soit Steam Guard n'est pas configuré correctement\n\tconformément à la documentation/README.${NC}\n"
                 exit 1
             elif [[ -n $(grep -i "Download item" "${STEAMCMD_LOG}") ]]; then # Steam account does not own base game for mod downloads, or unknown
-                echo -e "\n${RED}[UPDATE]: Cannot download mod - Download failed"
-                echo -e "\t${YELLOW}While unknown, this error is likely due to your host's Steam account not owning the base game.${NC}"
-                echo -e "\t${YELLOW}(Please contact your administrator/host if this issue persists)${NC}\n"
+                echo -e "\n${RED}[MISE À JOUR]: Impossible de télécharger le mod - Téléchargement annulé"
+                echo -e "\t${YELLOW}Tandis que cela est inconnu, cette erreur est probablement due à votre compte Steam hôte n'appartenant pas au jeu de base.${NC}"
+                echo -e "\t${YELLOW}(Veuillez contacter votre administrateur/hôte si ce problème persiste)${NC}\n"
                 exit 1
             elif [[ -n $(grep -i "0x202\|0x212" "${STEAMCMD_LOG}") ]]; then # Not enough disk space
-                echo -e "\n${RED}[UPDATE]: Unable to complete download - Not enough storage"
-                echo -e "\t${YELLOW}You have run out of your allotted disk space.${NC}"
-                echo -e "\t${YELLOW}Please contact your administrator/host for potential storage upgrades.${NC}\n"
+                echo -e "\n${RED}[MISE À JOUR]: Impossible de terminer le téléchargement - Pas assez d'espace disque"
+                echo -e "\t${YELLOW}Vous avez utilisé tout votre espace disque alloué.${NC}"
+                echo -e "\t${YELLOW}Veuillez contacter votre administrateur/hôte pour des mises à jour possibles de l'espace disque.${NC}\n"
                 exit 1
             elif [[ -n $(grep -i "0x606" "${STEAMCMD_LOG}") ]]; then # Disk write failure
-                echo -e "\n${RED}[UPDATE]: Unable to complete download - Disk write failure"
-                echo -e "\t${YELLOW}This is normally caused by directory permissions issues,\n\tbut could be a more serious hardware issue.${NC}"
-                echo -e "\t${YELLOW}(Please contact your administrator/host if this issue persists)${NC}\n"
+                echo -e "\n${RED}[MISE À JOUR]: Impossible de terminer le téléchargement - Erreur d'écriture disque"
+                echo -e "\t${YELLOW}Cela est généralement dû à des problèmes d'autorisations de répertoire,\n\tmais pourrait être un problème matériel plus grave.${NC}"
+                echo -e "\t${YELLOW}(Veuillez contacter votre administrateur/hôte si ce problème persiste)${NC}\n"
                 exit 1
             else # Unknown caught error
-                echo -e "\n${RED}[UPDATE]: ${YELLOW}An unknown error has occurred with SteamCMD. ${CYAN}Skipping download...${NC}"
-                echo -e "\t(Please contact your administrator/host if this issue persists)"
+                echo -e "\n${RED}[MISE À JOUR]: ${YELLOW}Une erreur inconnue s'est produite avec SteamCMD. ${CYAN}Téléchargement annulé...${NC}"
+                echo -e "\t(Veuillez contacter votre administrateur/hôte si ce problème persiste)"
                 break
             fi
         elif [[ $steamcmdExitCode != 0 ]]; then # Unknown fatal error
-            echo -e "\n${RED}[UPDATE]: SteamCMD has crashed for an unknown reason!${NC} (Exit code: ${CYAN}${steamcmdExitCode}${NC})"
-            echo -e "\t${YELLOW}(Please contact your administrator/host for support)${NC}\n"
+            echo -e "\n${RED}[MISE À JOUR]: SteamCMD s'est arrêté pour une raison inconnue!${NC} (Code de sortie: ${CYAN}${steamcmdExitCode}${NC})"
+            echo -e "\t${YELLOW}(Veuillez contacter votre administrateur/hôte pour obtenir de l'aide)${NC}\n"
             cp -r /tmp/dumps /home/container/dumps
             exit $steamcmdExitCode
         else # Success!
             if [[ $1 == 0 ]]; then # Server
-                echo -e "\n${GREEN}[UPDATE]: Game server is up to date!${NC}"
+                echo -e "\n${GREEN}[MISE À JOUR]: Le serveur de jeu est à jour!${NC}"
             else # Mod
                 # Move the downloaded mod to the root directory, and replace existing mod if needed
                 mkdir -p ./@$2
@@ -134,18 +134,18 @@ function RunSteamCMD { #[Input: int server=0 mod=1; int id]
                 # Move any .bikey's to the keys directory
                 echo -e "\tMoving any mod ${CYAN}.bikey${NC} files to the ${CYAN}~/keys/${NC} folder..."
                 find ./@$2 -name "*.bikey" -type f -exec cp {} ./keys \;
-                echo -e "${GREEN}[UPDATE]: Mod download/update successful!${NC}"
+                echo -e "${GREEN}[MISE À JOUR]: Téléchargement/mise à jour du mod réussi!${NC}"
             fi
             break
         fi
         if (( $updateAttempt == $STEAMCMD_ATTEMPTS )); then # Notify if failed last attempt
             if [[ $1 == 0 ]]; then # Server
-                echo -e "\t${RED}Final attempt made! ${YELLOW}Unable to complete game server update. ${CYAN}Skipping...${NC}"
-                echo -e "\t(Please try again at a later time)"
+                echo -e "\t${RED}Dernière tentative effectuée! ${YELLOW}Impossible de terminer la mise à jour du serveur de jeu. ${CYAN}Téléchargement annulé...${NC}"
+                echo -e "\t(Veuillez réessayer plus tard)"
                 sleep 3
             else # Mod
-                echo -e "\t${RED}Final attempt made! ${YELLOW}Unable to complete mod download/update. ${CYAN}Skipping...${NC}"
-                echo -e "\t(You may try again later, or manually upload this mod to your server via SFTP)"
+                echo -e "\t${RED}Dernière tentative effectuée! ${YELLOW}Impossible de terminer le téléchargement/mise à jour du mod. ${CYAN}Téléchargement annulé...${NC}"
+                echo -e "\t(Vous pouvez réessayer plus tard, ou télécharger ce mod manuellement sur votre serveur via SFTP)"
                 sleep 3
             fi
         fi
@@ -154,7 +154,7 @@ function RunSteamCMD { #[Input: int server=0 mod=1; int id]
 
 # Takes a directory (string) as input, and recursively makes all files & folders lowercase.
 function ModsLowercase {
-    echo -e "\n\tMaking mod ${CYAN}$1${NC} files/folders lowercase..."
+    echo -e "\n\tConversion des fichiers/dossiers du mod ${CYAN}$1${NC} en minuscules..."
     for SRC in `find ./$1 -depth`
     do
         DST=`dirname "${SRC}"`/`basename "${SRC}" | tr '[A-Z]' '[a-z]'`
@@ -214,11 +214,11 @@ allMods=$(echo $allMods | sed -e 's/;/ /g') # Convert from string to array
 
 # Update everything (server and mods), if specified
 if [[ ${UPDATE_SERVER} == 1 ]]; then
-    echo -e "\n${GREEN}[STARTUP]: ${CYAN}Starting checks for all updates...${NC}"
-    echo -e "(It is okay to ignore any \"SDL\" and \"thread priority\" errors during this process)\n"
+    echo -e "\n${GREEN}[DÉMARRAGE]: ${CYAN}Début des vérifications des mises à jour...${NC}"
+    echo -e "(Il est normal d'ignorer les erreurs \"SDL\" et \"thread priority\" pendant ce processus)\n"
     
     ## Update game server
-    echo -e "${GREEN}[UPDATE]:${NC} Checking for game server updates with App ID: ${CYAN}${STEAMCMD_APPID}${NC}..."
+    echo -e "${GREEN}[MISE À JOUR]:${NC} Checking for game server updates with App ID: ${CYAN}${STEAMCMD_APPID}${NC}..."
     
     if [[ ${VALIDATE_SERVER} == 1 ]]; then # Validate will be added as a parameter if specified
         echo -e "\t${CYAN}File validation enabled.${NC} (This may take extra time to complete)"
@@ -240,7 +240,7 @@ if [[ ${UPDATE_SERVER} == 1 ]]; then
     
     ## Update mods
     if [[ -n $allMods ]] && [[ ${DISABLE_MOD_UPDATES} != 1 ]]; then
-        echo -e "\n${GREEN}[UPDATE]:${NC} Checking all ${CYAN}Steam Workshop mods${NC} for updates..."
+        echo -e "\n${GREEN}[MISE À JOUR]:${NC} Checking all ${CYAN}Steam Workshop mods${NC} for updates..."
         for modID in $(echo $allMods | sed -e 's/@//g')
         do
             if [[ $modID =~ ^[0-9]+$ ]]; then # Only check mods that are in ID-form
@@ -254,9 +254,9 @@ if [[ ${UPDATE_SERVER} == 1 ]]; then
                         modName="[NAME UNAVAILABLE]"
                     fi
                     if [[ ! -d @$modID ]]; then
-                        echo -e "\n${GREEN}[UPDATE]:${NC} Downloading new Mod: \"${CYAN}${modName}${NC}\" (${CYAN}${modID}${NC})"
+                        echo -e "\n${GREEN}[MISE À JOUR]:${NC} Downloading new Mod: \"${CYAN}${modName}${NC}\" (${CYAN}${modID}${NC})"
                     else
-                        echo -e "\n${GREEN}[UPDATE]:${NC} Mod update found for: \"${CYAN}${modName}${NC}\" (${CYAN}${modID}${NC})"
+                        echo -e "\n${GREEN}[MISE À JOUR]:${NC} Mod update found for: \"${CYAN}${modName}${NC}\" (${CYAN}${modID}${NC})"
                     fi
                     if [[ -n $latestUpdate ]] && [[ $latestUpdate =~ ^[0-9]+$ ]]; then # Notify last update date, if valid
                         echo -e "\tMod was last updated: ${CYAN}$(date -d @${latestUpdate})${NC}"
@@ -271,7 +271,7 @@ if [[ ${UPDATE_SERVER} == 1 ]]; then
                 fi
             fi
         done
-        echo -e "${GREEN}[UPDATE]:${NC} Steam Workshop mod update check ${GREEN}complete${NC}!"
+        echo -e "${GREEN}[MISE À JOUR]:${NC} Steam Workshop mod update check ${GREEN}complete${NC}!"
     fi
 fi
 
@@ -303,7 +303,7 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libnss_wrapper.so
 modifiedStartup=`eval echo $(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')`
 
 # Start the Server
-echo -e "\n${GREEN}[STARTUP]:${NC} Starting server with the following startup command:"
+echo -e "\n${GREEN}[DÉMARRAGE]:${NC} Starting server with the following startup command:"
 echo -e "${CYAN}${modifiedStartup}${NC}\n"
 ${modifiedStartup}
 
