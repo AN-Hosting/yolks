@@ -50,6 +50,14 @@ ADD         passwd.template /passwd.template
 ## Setup user and working directory
 RUN         useradd -m -d /home/container -s /bin/bash container
 
+## Setup cron after user creation
+RUN         mkdir -p /var/spool/cron/crontabs \
+            && touch /var/spool/cron/crontabs/container \
+            && chmod 600 /var/spool/cron/crontabs/container \
+            && chown container:container /var/spool/cron/crontabs/container \
+            && chmod g+rx /var/spool/cron \
+            && chmod g+rx /var/spool/cron/crontabs
+
 ## Copy scripts before changing user
 COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
 COPY        --chown=container:container ./restart_dayz.sh /home/container/
@@ -63,9 +71,3 @@ STOPSIGNAL  SIGINT
 
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--"]
 CMD         ["/entrypoint.sh"]
-
-## Setup cron
-RUN         mkdir -p /var/spool/cron/crontabs && \
-            touch /var/spool/cron/crontabs/container && \
-            chmod 600 /var/spool/cron/crontabs/container && \
-            chown container:container /var/spool/cron/crontabs/container
