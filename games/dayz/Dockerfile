@@ -26,22 +26,13 @@ RUN         dpkg --add-architecture i386 \
                 lib32stdc++6 \
                 libcap2 \
                 libnss-wrapper \
-                tini \
-                procps \
-            && rm -rf /var/lib/apt/lists/*
+                tini
 
-## Install and configure busybox
-RUN         apt update \
-            && apt install -y busybox-static \
-            && mkdir -p /usr/local/bin \
-            && ln -sf /bin/busybox /usr/local/bin/crond \
-            && ln -sf /bin/busybox /usr/local/bin/crontab \
-            && rm -rf /var/lib/apt/lists/*
-
-## Install bercon directly from GitHub releases
-RUN         curl -#SfLo /usr/bin/bercon \
-            https://github.com/WoozyMasta/bercon/releases/latest/download/bercon \
-            && chmod +x /usr/bin/bercon
+## install rcon client (bercon)
+RUN         cd /tmp/ \
+            && curl -sSL https://github.com/WoozyMasta/bercon/releases/download/1.0.0/bercon > bercon \
+            && mv bercon /usr/local/bin/ \
+            && chmod +x /usr/local/bin/bercon
 
 ## Configure locale
 RUN         update-locale lang=en_US.UTF-8 \
@@ -56,38 +47,14 @@ ADD         passwd.template /passwd.template
 
 ## Setup user and working directory
 RUN         useradd -m -d /home/container -s /bin/bash container
-
-## Setup cron directories and permissions
-RUN         mkdir -p /home/container/cron \
-            && chown -R container:container /home/container/cron \
-            && chmod -R 755 /home/container/cron \
-            && mkdir -p /var/spool/cron/crontabs \
-            && chown -R container:container /var/spool/cron \
-            && chmod -R 0777 /var/spool/cron/crontabs
-
-## Copy scripts before changing user
-COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
-RUN         chmod +x /entrypoint.sh
-
-## Create log directory
-RUN         mkdir -p /home/container/logs \
-            && chown -R container:container /home/container/logs
-
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
 
-## Add environment variables for bercon
-## Note: RCON_PORT and RCON_PASSWORD are provided by Pterodactyl
-ENV         BERCON_IP=127.0.0.1
-ENV         BERCON_TIMEOUT=5000
-ENV         BERCON_KEEPALIVE=30
-
-## Create required cron directories
-RUN         mkdir -p /home/container/cron/crontabs \
-            && mkdir -p /home/container/cron/cronstamps
-
 STOPSIGNAL  SIGINT
 
+## Copy over and execute entrypoint.sh via Tini
+COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
+RUN         chmod +x /entrypoint.sh
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--"]
 CMD         ["/entrypoint.sh"]
