@@ -1,4 +1,4 @@
-FROM        ghcr.io/an-hosting/yolks:debian
+FROM        ghcr.io/an-hosting/yolks-installers:debian
 
 LABEL       author="Manuel Dielacher" maintainer="th3dilli@gmx.at"
 
