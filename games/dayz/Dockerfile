@@ -27,9 +27,15 @@ RUN         dpkg --add-architecture i386 \
                 libcap2 \
                 libnss-wrapper \
                 tini \
-                cron \
-                busybox \
                 procps \
+            && rm -rf /var/lib/apt/lists/*
+
+## Install and configure busybox
+RUN         apt update \
+            && apt install -y busybox-static \
+            && mkdir -p /usr/local/bin \
+            && ln -sf /bin/busybox /usr/local/bin/crond \
+            && ln -sf /bin/busybox /usr/local/bin/crontab \
             && rm -rf /var/lib/apt/lists/*
 
 ## Install bercon directly from GitHub releases
@@ -54,7 +60,10 @@ RUN         useradd -m -d /home/container -s /bin/bash container
 ## Setup cron directories and permissions
 RUN         mkdir -p /home/container/cron \
             && chown -R container:container /home/container/cron \
-            && chmod -R 755 /home/container/cron
+            && chmod -R 755 /home/container/cron \
+            && mkdir -p /var/spool/cron/crontabs \
+            && chown -R container:container /var/spool/cron \
+            && chmod -R 0777 /var/spool/cron/crontabs
 
 ## Copy scripts before changing user
 COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
@@ -73,6 +82,10 @@ WORKDIR     /home/container
 ENV         BERCON_IP=127.0.0.1
 ENV         BERCON_TIMEOUT=5000
 ENV         BERCON_KEEPALIVE=30
+
+## Create required cron directories
+RUN         mkdir -p /home/container/cron/crontabs \
+            && mkdir -p /home/container/cron/cronstamps
 
 STOPSIGNAL  SIGINT
 
