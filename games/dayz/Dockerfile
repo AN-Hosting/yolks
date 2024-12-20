@@ -58,3 +58,7 @@ COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
 RUN         chmod +x /entrypoint.sh
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--"]
 CMD         ["/entrypoint.sh"]
+
+## Ajouter après les autres installations
+COPY        --chown=container:container ./restart_dayz.sh /home/container/
+RUN         chmod +x /home/container/restart_dayz.sh

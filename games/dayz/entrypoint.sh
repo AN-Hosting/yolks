@@ -311,3 +311,12 @@ if [ $? -ne 0 ]; then
     echo -e "\n${RED}[STARTUP_ERR]: There was an error while attempting to run the start command.${NC}\n"
     exit 1
 fi
+
+# Configuration du redémarrage automatique
+if [ -n "${AUTO_RESTART_HOURS}" ]; then
+    echo "Configuration du redémarrage automatique pour les heures: ${AUTO_RESTART_HOURS}"
+    (crontab -l 2>/dev/null; echo "0 ${AUTO_RESTART_HOURS} * * * /home/container/restart_dayz.sh") | crontab -
+    service cron start
+else
+    echo "Redémarrage automatique désactivé (AUTO_RESTART_HOURS non défini)"
+fi
