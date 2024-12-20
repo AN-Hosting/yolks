@@ -172,6 +172,47 @@ function RemoveDuplicates { #[Input: str - Output: printf of new str]
     fi
 }
 
+# Fonction pour le redémarrage automatique
+function AutoRestart() {
+    local restart_hours=(${AUTO_RESTART_HOURS//,/ })
+    
+    while true; do
+        for hour in "${restart_hours[@]}"; do
+            current_time=$(date +%H:%M)
+            restart_time="${hour}:00"
+            
+            # Calculer les minutes restantes jusqu'au prochain redémarrage
+            current_minutes=$(date +%H:%M -d "$current_time" +'%s')
+            restart_minutes=$(date +%H:%M -d "$restart_time" +'%s')
+            minutes_until=$((($restart_minutes - $current_minutes) / 60))
+            
+            # Si on est dans les 30 minutes avant le redémarrage
+            if [ $minutes_until -le 30 ] && [ $minutes_until -ge 0 ]; then
+                case $minutes_until in
+                    30|20|10|5|4|3|2)
+                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Le serveur redémarrera dans ${minutes_until} minutes"
+                        ;;
+                    1)
+                        # Verrouiller le serveur
+                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            '#lock' \
+                            "say -1 Le serveur redémarrera dans 1 minute. Serveur verrouillé."
+                        ;;
+                    0)
+                        # Redémarrer le serveur
+                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Redémarrage du serveur..." \
+                            '#shutdown'
+                        exit 0
+                        ;;
+                esac
+            fi
+        done
+        sleep 60
+    done
+}
+
 ## === ENTRYPOINT START ===
 
 # Wait for the container to fully initialize
@@ -302,12 +343,18 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libnss_wrapper.so
 # Replace Startup Variables
 modifiedStartup=`eval echo $(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')`
 
+# Démarrer le processus de redémarrage automatique en arrière-plan si AUTO_RESTART_HOURS est défini
+if [[ -n ${AUTO_RESTART_HOURS} ]]; then
+    echo -e "${GREEN}[DÉMARRAGE]:${NC} Configuration du redémarrage automatique pour les heures: ${CYAN}${AUTO_RESTART_HOURS}${NC}"
+    AutoRestart &
+fi
+
 # Start the Server
-echo -e "\n${GREEN}[DÉMARRAGE]:${NC} Starting server with the following startup command:"
+echo -e "\n${GREEN}[DÉMARRAGE]:${NC} Démarrage du serveur avec la commande suivante:"
 echo -e "${CYAN}${modifiedStartup}${NC}\n"
 ${modifiedStartup}
 
 if [ $? -ne 0 ]; then
-    echo -e "\n${RED}[STARTUP_ERR]: There was an error while attempting to run the start command.${NC}\n"
+    echo -e "\n${RED}[ERREUR_DÉMARRAGE]: Une erreur s'est produite lors de la tentative d'exécution de la commande de démarrage.${NC}\n"
     exit 1
 fi
