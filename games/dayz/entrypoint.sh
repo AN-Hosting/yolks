@@ -178,17 +178,30 @@ function AutoRestart() {
     
     while true; do
         for hour in "${restart_hours[@]}"; do
+            # Convertir 24 en 0 pour minuit
+            if [ "$hour" = "24" ]; then
+                hour="0"
+            fi
+            
+            # Vérifier si l'heure est valide (entre 0 et 23)
+            if ! [[ "$hour" =~ ^[0-9]+$ ]] || [ "$hour" -gt 23 ]; then
+                echo -e "${RED}[ERREUR]:${NC} Heure de redémarrage invalide: ${hour}"
+                continue
+            }
+            
             # Obtenir l'heure actuelle et calculer l'heure de redémarrage
             current_epoch=$(date +%s)
             current_hour=$(date +%H)
-            current_min=$(date +%M)
+            
+            # Formater l'heure avec un zéro devant si nécessaire
+            formatted_hour=$(printf "%02d" $hour)
             
             # Calculer l'heure de redémarrage en epoch
-            if [ "$hour" -lt "$current_hour" ]; then
+            if [ "$hour" -le "$current_hour" ]; then
                 # Si l'heure de redémarrage est passée, on calcule pour le lendemain
-                restart_epoch=$(date -d "tomorrow $hour:00" +%s)
+                restart_epoch=$(date -d "tomorrow $formatted_hour:00" +%s)
             else
-                restart_epoch=$(date -d "today $hour:00" +%s)
+                restart_epoch=$(date -d "today $formatted_hour:00" +%s)
             fi
             
             # Calculer les minutes restantes
