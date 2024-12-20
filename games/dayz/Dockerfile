@@ -28,6 +28,7 @@ RUN         dpkg --add-architecture i386 \
                 libnss-wrapper \
                 tini \
                 cron \
+                busybox \
             && rm -rf /var/lib/apt/lists/*
 
 ## install rcon client (bercon)
@@ -50,13 +51,11 @@ ADD         passwd.template /passwd.template
 ## Setup user and working directory
 RUN         useradd -m -d /home/container -s /bin/bash container
 
-## Setup cron after user creation
-RUN         mkdir -p /var/spool/cron/crontabs \
-            && touch /var/spool/cron/crontabs/container \
-            && chmod 600 /var/spool/cron/crontabs/container \
-            && chown container:container /var/spool/cron/crontabs/container \
-            && chmod g+rx /var/spool/cron \
-            && chmod g+rx /var/spool/cron/crontabs
+## Setup cron alternative with busybox
+RUN         mkdir -p /etc/cron.d \
+            && touch /etc/cron.d/container-cron \
+            && chmod 0644 /etc/cron.d/container-cron \
+            && chown container:container /etc/cron.d/container-cron
 
 ## Copy scripts before changing user
 COPY        --chown=container:container ./entrypoint.sh /entrypoint.sh
