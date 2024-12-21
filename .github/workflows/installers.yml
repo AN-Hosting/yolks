@@ -10,12 +10,12 @@ on:
       - installers/**
 jobs:
   push:
-    name: "installers:{{ matrix.tag }}"
+    name: "installers:{{ matrix.distro }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        tag:
+        distro:
           - alpine
           - debian
           - ubuntu
@@ -32,9 +32,9 @@ jobs:
           password: ${{ secrets.REGISTRY_TOKEN }}
       - uses: docker/build-push-action@v5
         with:
-          context: ./installers
-          file: ./installers/${{ matrix.tag }}/Dockerfile
+          context: ./installers/${{ matrix.distro }}
+          file: ./installers/${{ matrix.distro }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/an-hosting/installers:${{ matrix.tag }}
+            ghcr.io/an-hosting/installers:${{ matrix.distro }}
