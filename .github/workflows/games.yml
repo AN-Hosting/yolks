@@ -43,7 +43,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/games:${{ matrix.game }}
             ghcr.io/an-hosting/games:${{ matrix.game }}
   pushAll:
     name: "games_All:${{ matrix.game }}"
@@ -75,5 +74,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/games:${{ matrix.game }}
             ghcr.io/an-hosting/games:${{ matrix.game }}

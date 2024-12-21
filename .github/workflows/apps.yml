@@ -39,5 +39,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/apps:${{ matrix.app }}
             ghcr.io/an-hosting/apps:${{ matrix.app }}
