@@ -305,7 +305,7 @@ function sendDiscordNotification() {
     "fields": [
       {
         "name": "Nom du mod",
-        "value": "${mod_name}",
+        "value": "[@${mod_name}](https://steamcommunity.com/sharedfiles/filedetails/?id=${mod_id})",
         "inline": true
       },
       {
