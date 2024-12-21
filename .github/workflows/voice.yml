@@ -34,7 +34,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/yolks:voice_${{ matrix.tag }}
             ghcr.io/an-hosting/yolks:voice_${{ matrix.tag }}
 
 
@@ -66,5 +65,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/yolks:voice_${{ matrix.tag }}
             ghcr.io/an-hosting/yolks:voice_${{ matrix.tag }}

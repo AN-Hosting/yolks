@@ -36,5 +36,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pelican-eggs/yolks:bun_${{ matrix.tag }}
             ghcr.io/an-hosting/yolks:bun_${{ matrix.tag }}
