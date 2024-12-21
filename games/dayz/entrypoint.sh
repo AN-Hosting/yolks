@@ -21,6 +21,7 @@ NC='\033[0m' # No Color
 
 ## === ENVIRONMENT VARS ===
 # STARTUP, STARTUP_PARAMS, STEAM_USER, STEAM_PASS, SERVER_BINARY, MOD_FILE, MODIFICATIONS, SERVERMODS, UPDATE_SERVER, VALIDATE_SERVER, MODS_LOWERCASE, STEAMCMD_EXTRA_FLAGS, STEAMCMD_APPID, SERVER_PASSWORD, STEAMCMD_ATTEMPTS, DISABLE_MOD_UPDATES
+# DISCORD_WEBHOOK_URL - L'URL du webhook Discord pour les notifications
 
 ## === GLOBAL VARS ===
 # validateServer, extraFlags, updateAttempt, modifiedStartup, allMods, CLIENT_MODS
@@ -289,6 +290,48 @@ function AutoRestart() {
     done
 }
 
+# Fonction pour envoyer un message à Discord
+function sendDiscordNotification() {
+    local mod_name="$1"
+    local mod_id="$2"
+    local status="$3"  # "Mise à jour" ou "installé"
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    
+    # Construction du message Discord avec un embed
+    local json_data=$(cat << EOF
+{
+  "embeds": [{
+    "title": "${SERVER_HOSTNAME}",
+    "fields": [
+      {
+        "name": "Nom du mod",
+        "value": "${mod_name}",
+        "inline": true
+      },
+      {
+        "name": "Date de l'opération",
+        "value": "<t:$(date +%s):R>",
+        "inline": true
+      },
+      {
+        "name": "Statut",
+        "value": "${status}",
+        "inline": true
+      }
+    ],
+    "color": 5793266,
+    "timestamp": "${timestamp}"
+  }]
+}
+EOF
+)
+
+    # Envoi de la notification à Discord si l'URL du webhook est configurée
+    if [[ -n ${DISCORD_WEBHOOK_URL} ]]; then
+        curl -H "Content-Type: application/json" -X POST -d "${json_data}" ${DISCORD_WEBHOOK_URL}
+    fi
+}
+
 ## === ENTRYPOINT START ===
 
 # Wait for the container to fully initialize
@@ -385,6 +428,11 @@ if [[ ${UPDATE_SERVER} == 1 ]]; then
 
                     echo -e "\tAttempting mod update/download via SteamCMD...\n"
                     RunSteamCMD 1 $modID
+                    
+                    # Après un téléchargement réussi, envoyer la notification Discord
+                    if [ $? -eq 0 ]; then
+                        sendDiscordNotification "${modName}" "${modID}" "Mise à jour"
+                    fi
                 fi
             fi
         done
