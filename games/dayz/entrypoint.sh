@@ -242,10 +242,12 @@ function AutoRestart() {
                         fi
                         ;;
                     3)
-                        # Verrouiller le serveur 3 minutes avant
+                        # Verrouiller le serveur et kicker les joueurs 3 minutes avant
                         if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
-                            '#lock' "say -1 Le serveur redémarrera dans 3 minutes. Serveur verrouillé."; then
-                            echo -e "${YELLOW}[REDÉMARRAGE]:${NC} Serveur verrouillé"
+                            '#lock' \
+                            '#kick -1 Le serveur redémarre dans 3 minutes' \
+                            "say -1 Le serveur redémarrera dans 3 minutes. Serveur verrouillé."; then
+                            echo -e "${YELLOW}[REDÉMARRAGE]:${NC} Serveur verrouillé et joueurs expulsés"
                         fi
                         ;;
                     2)
@@ -262,7 +264,7 @@ function AutoRestart() {
                         ;;
                     0)
                         echo -e "${RED}[REDÉMARRAGE]:${NC} Début de la séquence d'arrêt"
-                        # Envoyer le message final et la commande d'arrêt
+                        # Envoyer le message final et arrêter le serveur
                         bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
                             "say -1 Redémarrage du serveur..." \
                             '#shutdown'
