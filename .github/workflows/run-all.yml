@@ -13,8 +13,19 @@ jobs:
           workflow: base.yml
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  core-runtimes:
+  installers:
     needs: base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Installers Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: installers.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  core-runtimes:
+    needs: installers
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -85,8 +96,7 @@ jobs:
           'voice.yml',
           'games.yml',
           'bot.yml',
-          'apps.yml',
-          'installers.yml'
+          'apps.yml'
         ]
     steps:
       - uses: actions/checkout@v4
