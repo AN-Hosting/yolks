@@ -1,45 +1,40 @@
-name: build apps
+name: build installers
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * 1"
   push:
     branches:
-      - main
+      - master
     paths:
-      - apps/**
-
-permissions:
-  contents: read
-  packages: write
-
+      - installers/**
 jobs:
   push:
-    name: "yolks:apps_${{ matrix.app }}"
+    name: "installers:{{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app:
-          - dotnet
-          - java
-          - nodejs
-          - python
-          - golang
+        tag:
+          - alpine
+          - debian
+          - ubuntu
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
       - uses: docker/build-push-action@v5
         with:
-          context: ./apps/${{ matrix.app }}
-          file: ./apps/${{ matrix.app }}/Dockerfile
+          context: ./installers
+          file: ./installers/${{ matrix.tag }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/an-hosting/apps:${{ matrix.app }}
+            ghcr.io/an-hosting/installers:${{ matrix.tag }}
