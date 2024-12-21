@@ -172,10 +172,32 @@ function RemoveDuplicates { #[Input: str - Output: printf of new str]
     fi
 }
 
+# Fonction pour vérifier si le serveur est en ligne
+function checkServer() {
+    local attempts=0
+    local max_attempts=30
+    while [ $attempts -lt $max_attempts ]; do
+        if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" "players" &>/dev/null; then
+            return 0
+        fi
+        attempts=$((attempts + 1))
+        sleep 2
+    done
+    return 1
+}
+
 # Fonction pour le redémarrage automatique
 function AutoRestart() {
     local restart_hours=(${AUTO_RESTART_HOURS//,/ })
     local RESTART_FILE="/tmp/need_restart"
+    
+    # Attendre que le serveur soit complètement démarré
+    echo -e "${YELLOW}[REDÉMARRAGE]:${NC} Attente du démarrage complet du serveur..."
+    if ! checkServer; then
+        echo -e "${RED}[ERREUR]:${NC} Impossible de se connecter au serveur via RCON"
+        return 1
+    fi
+    echo -e "${GREEN}[REDÉMARRAGE]:${NC} Connexion RCON établie"
     
     while true; do
         for hour in "${restart_hours[@]}"; do
@@ -211,31 +233,51 @@ function AutoRestart() {
             # Si on est dans les 30 minutes avant le redémarrage
             if [ $minutes_until -le 30 ] && [ $minutes_until -ge 0 ]; then
                 case $minutes_until in
-                    30|20|10|5|4|3)
-                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
-                            "say -1 Le serveur redémarrera dans ${minutes_until} minutes"
+                    30|20|10|5|4)
+                        if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Le serveur redémarrera dans ${minutes_until} minutes"; then
+                            echo -e "${GREEN}[REDÉMARRAGE]:${NC} Message envoyé: ${minutes_until} minutes"
+                        else
+                            echo -e "${RED}[ERREUR]:${NC} Échec de l'envoi du message RCON"
+                        fi
+                        ;;
+                    3)
+                        # Verrouiller le serveur 3 minutes avant
+                        if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            '#lock' "say -1 Le serveur redémarrera dans 3 minutes. Serveur verrouillé."; then
+                            echo -e "${YELLOW}[REDÉMARRAGE]:${NC} Serveur verrouillé"
+                        fi
                         ;;
                     2)
-                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
-                            "say -1 Le serveur redémarrera dans 2 minutes"
+                        if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Le serveur redémarrera dans 2 minutes."; then
+                            echo -e "${GREEN}[REDÉMARRAGE]:${NC} Message envoyé: 2 minutes"
+                        fi
                         ;;
                     1)
-                        # Verrouiller le serveur
-                        bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
-                            '#lock' \
-                            "say -1 Le serveur redémarrera dans 1 minute. Serveur verrouillé."
+                        if bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
+                            "say -1 Le serveur redémarrera dans 1 minute."; then
+                            echo -e "${GREEN}[REDÉMARRAGE]:${NC} Message envoyé: 1 minute"
+                        fi
                         ;;
                     0)
-                        # Redémarrer le serveur
+                        echo -e "${RED}[REDÉMARRAGE]:${NC} Début de la séquence d'arrêt"
+                        # Envoyer le message final et la commande d'arrêt
                         bercon-cli -p ${RCON_PORT} -P "${RCON_PASSWORD}" \
                             "say -1 Redémarrage du serveur..." \
                             '#shutdown'
-                        # Créer un fichier pour indiquer qu'un redémarrage est nécessaire
-                        touch "${RESTART_FILE}"
+                        
                         # Attendre que le serveur s'arrête complètement
-                        sleep 10
+                        sleep 30
+                        
+                        # Créer le fichier de redémarrage
+                        touch "${RESTART_FILE}"
+                        echo -e "${GREEN}[REDÉMARRAGE]:${NC} Redémarrage du conteneur..."
+                        
                         # Tuer le processus principal
-                        kill -15 $(cat /tmp/.pid)
+                        if [ -f /tmp/.pid ]; then
+                            kill -15 $(cat /tmp/.pid)
+                        fi
                         exit 0
                         ;;
                 esac
