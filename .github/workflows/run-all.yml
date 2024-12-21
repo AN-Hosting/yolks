@@ -3,41 +3,95 @@ on:
   workflow_dispatch:
 
 jobs:
-  trigger-all:
+  base:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Base Workflows
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: base.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  core-runtimes:
+    needs: base
     runs-on: ubuntu-latest
     strategy:
       matrix:
         workflow: [
-          'apps.yml',
-          'base.yml',
-          'bot.yml',
-          'box64.yml',
-          'bun.yml',
-          'cassandra.yml',
-          'dart.yml',
-          'dotnet.yml',
-          'elixir.yml',
-          'erlang.yml',
-          'games.yml',
-          'go.yml',
-          'installers.yml',
           'java.yml',
-          'mariadb.yml',
-          'mongodb.yml',
-          'mono.yml',
-          'nodejs.yml',
-          'postgres.yml',
           'python.yml',
-          'redis.yml',
-          'rust.yml',
-          'steamcmd.yml',
-          'voice.yml'
+          'nodejs.yml',
+          'go.yml'
         ]
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Trigger Workflow
+      - name: Trigger Core Runtime Workflows
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: ${{ matrix.workflow }}
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  databases:
+    needs: core-runtimes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workflow: [
+          'mariadb.yml',
+          'mongodb.yml',
+          'postgres.yml',
+          'redis.yml',
+          'cassandra.yml'
+        ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Database Workflows
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ${{ matrix.workflow }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  specialized-runtimes:
+    needs: databases
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workflow: [
+          'bun.yml',
+          'rust.yml',
+          'dotnet.yml',
+          'mono.yml',
+          'dart.yml',
+          'elixir.yml',
+          'erlang.yml'
+        ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Specialized Runtime Workflows
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ${{ matrix.workflow }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  applications:
+    needs: specialized-runtimes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workflow: [
+          'box64.yml',
+          'steamcmd.yml',
+          'voice.yml',
+          'games.yml',
+          'bot.yml',
+          'apps.yml',
+          'installers.yml'
+        ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Application Workflows
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ${{ matrix.workflow }}
+          token: ${{ secrets.GITHUB_TOKEN }}
