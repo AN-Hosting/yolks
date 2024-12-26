@@ -46,11 +46,11 @@ jobs:
           push: false
           load: true
           tags: |
-            ghcr.io/an-hosting/yolks:n8n::test
+            ghcr.io/an-hosting/yolks:n8n_test
 
       - name: Test container
         run: |
-          docker run --name n8n-test -d -p 5678:5678 ghcr.io/an-hosting/yolks:n8n::test
+          docker run --name n8n-test -d -p 5678:5678 ghcr.io/an-hosting/yolks:n8n_test
           sleep 10
           curl --fail http://localhost:5678 || exit 1
           docker logs n8n-test
@@ -64,5 +64,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/an-hosting/yolks:n8n:latest
-            ghcr.io/an-hosting/yolks:n8n:${{ matrix.version }} 
+            ghcr.io/an-hosting/yolks:n8n_latest
+            ghcr.io/an-hosting/yolks:n8n_${{ matrix.version }} 
