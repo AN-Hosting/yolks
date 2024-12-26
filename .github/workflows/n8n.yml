@@ -39,8 +39,8 @@ jobs:
 
       - uses: docker/build-push-action@v5
         with:
-          context: ./n8n/n8n_${{ matrix.tag }}
-          file: ./n8n/n8n_${{ matrix.tag }}/Dockerfile
+          context: ./n8n
+          file: ./n8n/n8n_v${{ matrix.tag }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
