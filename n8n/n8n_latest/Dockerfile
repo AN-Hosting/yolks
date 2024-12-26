@@ -19,8 +19,7 @@ USER container
 # Configuration des variables d'environnement par défaut
 ENV NODE_ENV=production \
     DB_TYPE=sqlite \
-    N8N_PORT=5678 \
-    WEBHOOK_URL=http://localhost:5678/ \
+    WEBHOOK_URL="http://${SERVER_IP}:${SERVER_PORT}/" \
     GENERIC_TIMEZONE="UTC" \
     HOME=/home/container \
     USER=container \
@@ -30,7 +29,7 @@ ENV NODE_ENV=production \
     NODE_TLS_REJECT_UNAUTHORIZED=0 \
     N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
 
-# Exposition du port
-EXPOSE 5678
+# Exposition du port (sera remplacé par Pterodactyl)
+EXPOSE ${SERVER_PORT}
 
 WORKDIR /home/container 

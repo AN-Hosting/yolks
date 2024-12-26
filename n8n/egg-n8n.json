@@ -14,7 +14,7 @@
         "n8n Next": "ghcr.io\/an-hosting\/yolks:n8n_next"
     },
     "file_denylist": [],
-    "startup": "node \/usr\/local\/lib\/node_modules\/n8n\/bin\/n8n start",
+    "startup": "node \/usr\/local\/lib\/node_modules\/n8n\/bin\/n8n start --port={{SERVER_PORT}}",
     "config": {
         "files": "{\r\n    \"data\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"N8N_PORT\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
         "startup": "{\r\n    \"done\": \"Editor is now accessible via:\",\r\n    \"userInteraction\": []\r\n}",
@@ -163,7 +163,7 @@
             "name": "Webhook URL",
             "description": "URL pour les webhooks",
             "env_variable": "WEBHOOK_URL",
-            "default_value": "http:\/\/localhost:5678\/",
+            "default_value": "http://{{SERVER_IP}}:{{SERVER_PORT}}/",
             "user_viewable": false,
             "user_editable": false,
             "rules": "required|string",

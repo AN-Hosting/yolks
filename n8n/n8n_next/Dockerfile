@@ -19,7 +19,7 @@ USER container
 ENV NODE_ENV=production \
     DB_TYPE=sqlite \
     N8N_PORT=5678 \
-    WEBHOOK_URL=http://localhost:5678/ \
+    WEBHOOK_URL="http://${SERVER_IP}:${SERVER_PORT}/" \
     GENERIC_TIMEZONE="UTC" \
     HOME=/home/container \
     USER=container \
