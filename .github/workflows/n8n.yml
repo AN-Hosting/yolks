@@ -3,7 +3,7 @@ name: build n8n
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * 1"
+    - cron: "0 0 * * *"
   push:
     branches:
       - master
@@ -44,4 +44,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/an-hosting/yolks:n8n_${{ matrix.tag }} 
+            ghcr.io/an-hosting/yolks:n8n_${{ matrix.tag }}
+          no-cache: true

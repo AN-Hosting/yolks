@@ -1,4 +1,4 @@
-FROM docker.n8n.io/n8nio/n8n:1.1.0 
+FROM docker.n8n.io/n8nio/n8n:latest 
 
 LABEL author="AN-Hosting" maintainer="contact@an-hosting.fr"
 

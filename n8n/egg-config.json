@@ -4,15 +4,15 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2024-01-01T00:00:00+00:00",
-    "name": "n8n",
-    "author": "contact@an-hosting.fr",
+    "exported_at": "2024-12-26T11:31:11+00:00",
+    "name": "n8n1.0",
+    "author": "nicolas@anhosting.fr",
     "description": "n8n is an extendable workflow automation tool. Easy to use, built for automation and with a fair-code license.",
     "features": null,
     "docker_images": {
-        "ghcr.io/an-hosting/yolks:n8n_latest": "n8n Latest (1.1.0)",
-        "ghcr.io/an-hosting/yolks:n8n_next": "n8n Next (1.0.0)",
-        "ghcr.io/an-hosting/yolks:n8n_stable": "n8n Stable (0.237.0)"
+        "ghcr.io/an-hosting/yolks:n8n_latest": "n8n Latest (Auto-updated)",
+        "ghcr.io/an-hosting/yolks:n8n_next": "n8n Next (Auto-updated)",
+        "ghcr.io/an-hosting/yolks:n8n_stable": "n8n Stable (Auto-updated)"
     },
     "file_denylist": [],
     "startup": "node \/usr\/local\/lib\/node_modules\/n8n\/bin\/n8n start",
@@ -37,7 +37,8 @@
             "default_value": "5678",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|numeric|max:65535"
+            "rules": "required|numeric|max:65535",
+            "field_type": "text"
         },
         {
             "name": "Database Type",
@@ -46,7 +47,8 @@
             "default_value": "sqlite",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string|in:sqlite,postgresdb"
+            "rules": "required|string|in:sqlite,postgresdb",
+            "field_type": "text"
         },
         {
             "name": "Database Host",
@@ -55,7 +57,8 @@
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required_if:DB_TYPE,postgresdb"
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
         },
         {
             "name": "Database Port",
@@ -64,7 +67,8 @@
             "default_value": "5432",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required_if:DB_TYPE,postgresdb|numeric"
+            "rules": "required_if:DB_TYPE,postgresdb|numeric",
+            "field_type": "text"
         },
         {
             "name": "Database Name",
@@ -73,7 +77,8 @@
             "default_value": "n8n",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required_if:DB_TYPE,postgresdb"
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
         },
         {
             "name": "Database User",
@@ -82,7 +87,8 @@
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required_if:DB_TYPE,postgresdb"
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
         },
         {
             "name": "Database Password",
@@ -91,7 +97,8 @@
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required_if:DB_TYPE,postgresdb"
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
         },
         {
             "name": "Timezone",
@@ -100,7 +107,8 @@
             "default_value": "Europe/Paris",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string"
+            "rules": "required|string",
+            "field_type": "text"
         },
         {
             "name": "Protocol",
@@ -109,7 +117,18 @@
             "default_value": "http",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string|in:http,https"
+            "rules": "required|string|in:http,https",
+            "field_type": "text"
+        },
+        {
+            "name": "Base URL",
+            "description": "URL de base de n8n",
+            "env_variable": "N8N_PATH",
+            "default_value": "/",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
         },
         {
             "name": "Webhook URL",
@@ -118,34 +137,8 @@
             "default_value": "http://localhost:5678/",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string"
-        },
-        {
-            "name": "Basic Auth Active",
-            "description": "Activer l'authentification basique",
-            "env_variable": "N8N_BASIC_AUTH_ACTIVE",
-            "default_value": "false",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required|string|in:true,false"
-        },
-        {
-            "name": "Basic Auth User",
-            "description": "Utilisateur pour l'authentification basique",
-            "env_variable": "N8N_BASIC_AUTH_USER",
-            "default_value": "",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
-        },
-        {
-            "name": "Basic Auth Password",
-            "description": "Mot de passe pour l'authentification basique",
-            "env_variable": "N8N_BASIC_AUTH_PASSWORD",
-            "default_value": "",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
+            "rules": "required|string",
+            "field_type": "text"
         },
         {
             "name": "Encryption Key",
@@ -154,7 +147,38 @@
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "string|min:8"
+            "rules": "string|min:8",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth Active",
+            "description": "Activer l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_ACTIVE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth User",
+            "description": "Utilisateur pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth Password",
+            "description": "Mot de passe pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true",
+            "field_type": "text"
         },
         {
             "name": "Execution Mode",
@@ -163,7 +187,38 @@
             "default_value": "regular",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string|in:regular,queue"
+            "rules": "required|string|in:regular,queue",
+            "field_type": "text"
+        },
+        {
+            "name": "Execution Process",
+            "description": "Processus d'exécution (main ou own)",
+            "env_variable": "EXECUTIONS_PROCESS",
+            "default_value": "main",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:main,own",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Execution Timeout",
+            "description": "Timeout maximum des exécutions (en secondes)",
+            "env_variable": "EXECUTIONS_TIMEOUT",
+            "default_value": "3600",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Execution Data",
+            "description": "Nombre maximum d'exécutions à conserver",
+            "env_variable": "EXECUTIONS_DATA_MAX_AGE",
+            "default_value": "336",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
         }
     ]
 }
