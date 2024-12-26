@@ -1,0 +1,198 @@
+{
+    "name": "n8n",
+    "variables": [
+        {
+            "name": "N8N_PORT",
+            "description": "Port sur lequel n8n va écouter",
+            "env_variable": "N8N_PORT",
+            "default_value": "5678",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric|max:65535"
+        },
+        {
+            "name": "DB_TYPE",
+            "description": "Type de base de données (sqlite ou postgresdb)",
+            "env_variable": "DB_TYPE", 
+            "default_value": "sqlite",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:sqlite,postgresdb"
+        },
+        {
+            "name": "GENERIC_TIMEZONE",
+            "description": "Fuseau horaire",
+            "env_variable": "GENERIC_TIMEZONE",
+            "default_value": "Europe/Paris",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
+        },
+        {
+            "name": "N8N_PROTOCOL",
+            "description": "Protocole HTTP ou HTTPS",
+            "env_variable": "N8N_PROTOCOL",
+            "default_value": "http",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:http,https"
+        },
+        {
+            "name": "N8N_HOST",
+            "description": "Nom d'hôte de n8n",
+            "env_variable": "N8N_HOST",
+            "default_value": "localhost",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
+        },
+        {
+            "name": "N8N_EDITOR_BASE_URL",
+            "description": "URL de base de l'éditeur n8n",
+            "env_variable": "N8N_EDITOR_BASE_URL",
+            "default_value": "http://localhost:5678",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
+        },
+        {
+            "name": "N8N_ENCRYPTION_KEY",
+            "description": "Clé de chiffrement pour les données sensibles",
+            "env_variable": "N8N_ENCRYPTION_KEY",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "string|min:8"
+        },
+        {
+            "name": "N8N_EMAIL_MODE",
+            "description": "Mode d'envoi des emails",
+            "env_variable": "N8N_EMAIL_MODE",
+            "default_value": "smtp",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:smtp,sendgrid"
+        },
+        {
+            "name": "N8N_SMTP_HOST",
+            "description": "Hôte SMTP",
+            "env_variable": "N8N_SMTP_HOST",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_EMAIL_MODE,smtp"
+        },
+        {
+            "name": "N8N_SMTP_PORT",
+            "description": "Port SMTP",
+            "env_variable": "N8N_SMTP_PORT",
+            "default_value": "587",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_EMAIL_MODE,smtp|numeric"
+        },
+        {
+            "name": "N8N_SMTP_USER",
+            "description": "Utilisateur SMTP",
+            "env_variable": "N8N_SMTP_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_EMAIL_MODE,smtp"
+        },
+        {
+            "name": "N8N_SMTP_PASS",
+            "description": "Mot de passe SMTP",
+            "env_variable": "N8N_SMTP_PASS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_EMAIL_MODE,smtp"
+        },
+        {
+            "name": "N8N_SMTP_SSL",
+            "description": "Utiliser SSL pour SMTP",
+            "env_variable": "N8N_SMTP_SSL",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_EMAIL_MODE,smtp|boolean"
+        },
+        {
+            "name": "DB_POSTGRESDB_DATABASE",
+            "description": "Nom de la base de données PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_DATABASE",
+            "default_value": "n8n",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb"
+        },
+        {
+            "name": "DB_POSTGRESDB_HOST",
+            "description": "Hôte PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_HOST",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb"
+        },
+        {
+            "name": "DB_POSTGRESDB_PORT",
+            "description": "Port PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_PORT",
+            "default_value": "5432",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb|numeric"
+        },
+        {
+            "name": "DB_POSTGRESDB_USER",
+            "description": "Utilisateur PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_USER",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb"
+        },
+        {
+            "name": "DB_POSTGRESDB_PASSWORD",
+            "description": "Mot de passe PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_PASSWORD",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb"
+        },
+        {
+            "name": "N8N_BASIC_AUTH_ACTIVE",
+            "description": "Activer l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_ACTIVE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean"
+        },
+        {
+            "name": "N8N_BASIC_AUTH_USER",
+            "description": "Utilisateur pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
+        },
+        {
+            "name": "N8N_BASIC_AUTH_PASSWORD",
+            "description": "Mot de passe pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
+        }
+    ],
+    "startup": "./entrypoint.sh",
+    "config": {
+        "files": "/home/node/.n8n",
+        "startup": {
+            "done": "Editor is now accessible via:"
+        }
+    }
+} 
