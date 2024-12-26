@@ -8,18 +8,23 @@ USER root
 RUN apk add --no-cache \
     curl
 
-# Création du dossier pour les données persistantes
-RUN mkdir -p /home/node/.n8n && \
-    chown -R node:node /home/node/.n8n
+# Création des dossiers nécessaires avec les bonnes permissions
+RUN mkdir -p /home/container/.n8n && \
+    chown -R container:container /home/container
 
-USER node
+USER container
 
 # Configuration des variables d'environnement par défaut
 ENV NODE_ENV=production \
     DB_TYPE=sqlite \
     N8N_PORT=5678 \
     WEBHOOK_URL=http://localhost:5678/ \
-    GENERIC_TIMEZONE="UTC"
+    GENERIC_TIMEZONE="UTC" \
+    HOME=/home/container \
+    USER=container \
+    N8N_USER_FOLDER=/home/container/.n8n
 
 # Exposition du port
-EXPOSE 5678 
+EXPOSE 5678
+
+WORKDIR /home/container 
