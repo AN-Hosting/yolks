@@ -1,0 +1,63 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2024-12-26T11:54:23+00:00",
+    "name": "n8n",
+    "author": "nicolas@anhosting.fr",
+    "description": "n8n is an extendable workflow automation tool. Easy to use, built for automation and with a fair-code license.",
+    "features": null,
+    "docker_images": {
+        "n8n Latest": "ghcr.io\/an-hosting\/yolks:n8n_latest",
+        "n8n Next": "ghcr.io\/an-hosting\/yolks:n8n_next"
+    },
+    "file_denylist": [],
+    "startup": "node \/usr\/local\/lib\/node_modules\/n8n\/bin\/n8n start",
+    "config": {
+        "files": "{\r\n    \"data\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"N8N_PORT\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \"Editor is now accessible via:\",\r\n    \"userInteraction\": []\r\n}",
+        "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": null,
+            "container": "alpine:3.4",
+            "entrypoint": "ash"
+        }
+    },
+    "variables": [
+        {
+            "name": "N8N Port",
+            "description": "Port sur lequel n8n va \u00e9couter",
+            "env_variable": "N8N_PORT",
+            "default_value": "5678",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|numeric|max:65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Secure Cookie",
+            "description": "Activer les cookies sécurisés",
+            "env_variable": "N8N_SECURE_COOKIE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "TLS Verify",
+            "description": "Vérification des certificats TLS",
+            "env_variable": "NODE_TLS_REJECT_UNAUTHORIZED",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|numeric|in:0,1",
+            "field_type": "text"
+        }
+    ]
+}

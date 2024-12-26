@@ -23,7 +23,10 @@ ENV NODE_ENV=production \
     GENERIC_TIMEZONE="UTC" \
     HOME=/home/container \
     USER=container \
-    N8N_USER_FOLDER=/home/container/.n8n
+    N8N_USER_FOLDER=/home/container/.n8n \
+    N8N_SECURE_COOKIE=false \
+    N8N_PROTOCOL=http \
+    NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # Exposition du port
 EXPOSE 5678
