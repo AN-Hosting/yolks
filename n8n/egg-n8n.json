@@ -40,6 +40,166 @@
             "field_type": "text"
         },
         {
+            "name": "Database Type",
+            "description": "Type de base de donn\u00e9es (sqlite ou postgresdb)",
+            "env_variable": "DB_TYPE",
+            "default_value": "sqlite",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:sqlite,postgresdb",
+            "field_type": "text"
+        },
+        {
+            "name": "Database Host",
+            "description": "H\u00f4te PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_HOST",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
+        },
+        {
+            "name": "Database Port",
+            "description": "Port PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_PORT",
+            "default_value": "5432",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "Database Name",
+            "description": "Nom de la base de donn\u00e9es PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_DATABASE",
+            "default_value": "n8n",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
+        },
+        {
+            "name": "Database User",
+            "description": "Utilisateur PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
+        },
+        {
+            "name": "Database Password",
+            "description": "Mot de passe PostgreSQL",
+            "env_variable": "DB_POSTGRESDB_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:DB_TYPE,postgresdb",
+            "field_type": "text"
+        },
+        {
+            "name": "Timezone",
+            "description": "Fuseau horaire",
+            "env_variable": "GENERIC_TIMEZONE",
+            "default_value": "Europe\/Paris",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Protocol",
+            "description": "Protocole HTTP ou HTTPS",
+            "env_variable": "N8N_PROTOCOL",
+            "default_value": "http",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|in:http,https",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth Active",
+            "description": "Activer l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_ACTIVE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth User",
+            "description": "Utilisateur pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true",
+            "field_type": "text"
+        },
+        {
+            "name": "Basic Auth Password",
+            "description": "Mot de passe pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true",
+            "field_type": "text"
+        },
+        {
+            "name": "Base URL",
+            "description": "URL de base de n8n",
+            "env_variable": "N8N_PATH",
+            "default_value": "\/",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Webhook URL",
+            "description": "URL pour les webhooks",
+            "env_variable": "WEBHOOK_URL",
+            "default_value": "http:\/\/localhost:5678\/",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Execution Mode",
+            "description": "Mode d'ex\u00e9cution (regular ou queue)",
+            "env_variable": "EXECUTIONS_MODE",
+            "default_value": "regular",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:regular,queue",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Execution Timeout",
+            "description": "Timeout maximum des ex\u00e9cutions (en secondes)",
+            "env_variable": "EXECUTIONS_TIMEOUT",
+            "default_value": "3600",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Execution Data",
+            "description": "Nombre maximum d'ex\u00e9cutions \u00e0 conserver",
+            "env_variable": "EXECUTIONS_DATA_MAX_AGE",
+            "default_value": "336",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
             "name": "Secure Cookie",
             "description": "Activer les cookies sécurisés",
             "env_variable": "N8N_SECURE_COOKIE",
@@ -51,12 +211,22 @@
         },
         {
             "name": "TLS Verify",
-            "description": "Vérification des certificats TLS",
+            "description": "Vérification des certificats TLS (désactivé pour le développement)",
             "env_variable": "NODE_TLS_REJECT_UNAUTHORIZED",
             "default_value": "0",
             "user_viewable": true,
             "user_editable": false,
             "rules": "required|numeric|in:0,1",
+            "field_type": "text"
+        },
+        {
+            "name": "Settings File Permissions",
+            "description": "Appliquer les permissions correctes aux fichiers de configuration",
+            "env_variable": "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|in:true,false",
             "field_type": "text"
         }
     ]
