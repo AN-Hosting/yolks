@@ -8,8 +8,9 @@ USER root
 RUN apk add --no-cache \
     curl
 
-# Création des dossiers nécessaires avec les bonnes permissions
-RUN mkdir -p /home/container/.n8n && \
+# Création de l'utilisateur et des dossiers nécessaires
+RUN adduser -D -h /home/container container && \
+    mkdir -p /home/container/.n8n && \
     chown -R container:container /home/container
 
 USER container
