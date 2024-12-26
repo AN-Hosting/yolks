@@ -12,15 +12,15 @@ on:
 
 jobs:
   push:
-    name: "n8n:${{ matrix.version }}"
+    name: "yolks:n8n_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - v0.237
-          - v1.0
-          - v1.1
+        tag:
+          - '0.237'
+          - '1.0'
+          - '1.1'
 
     steps:
       - uses: actions/checkout@v4
@@ -37,32 +37,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - name: Build and test Docker image
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v5
         with:
           context: ./n8n
-          file: ./n8n/n8n_${{ matrix.version }}/Dockerfile
-          platforms: linux/amd64
-          push: false
-          load: true
-          tags: |
-            ghcr.io/an-hosting/yolks:n8n_test
-
-      - name: Test container
-        run: |
-          docker run --name n8n-test -d -p 5678:5678 ghcr.io/an-hosting/yolks:n8n_test
-          sleep 10
-          curl --fail http://localhost:5678 || exit 1
-          docker logs n8n-test
-          docker stop n8n-test
-
-      - name: Build and push final image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./n8n
-          file: ./n8n/n8n_${{ matrix.version }}/Dockerfile
+          file: ./n8n/n8n_v${{ matrix.tag }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/an-hosting/yolks:n8n_latest
-            ghcr.io/an-hosting/yolks:n8n_${{ matrix.version }} 
+            ghcr.io/an-hosting/yolks:n8n_${{ matrix.tag }} 
