@@ -1,4 +1,4 @@
-FROM docker.n8n.io/n8nio/n8n:1.1.0
+FROM docker.n8n.io/n8nio/n8n:1.1.0 
 
 LABEL author="AN-Hosting" maintainer="contact@an-hosting.fr"
 
@@ -6,8 +6,7 @@ USER root
 
 # Installation des dépendances système nécessaires
 RUN apk add --no-cache \
-    curl \
-    openssh
+    curl
 
 # Création de l'utilisateur et des dossiers nécessaires
 RUN adduser -D -h /home/container container && \

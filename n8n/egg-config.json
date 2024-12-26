@@ -4,38 +4,34 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2024-12-26T00:49:54+00:00",
+    "exported_at": "2024-01-01T00:00:00+00:00",
     "name": "n8n",
-    "author": "nicolas@anhosting.fr",
+    "author": "contact@an-hosting.fr",
     "description": "n8n is an extendable workflow automation tool. Easy to use, built for automation and with a fair-code license.",
-    "features": ["database"],
+    "features": null,
     "docker_images": {
-        "ghcr.io/an-hosting/yolks:n8n_1.0": "n8n v1.0"
+        "ghcr.io/an-hosting/yolks:n8n_latest": "n8n Latest (1.1.0)",
+        "ghcr.io/an-hosting/yolks:n8n_next": "n8n Next (1.0.0)",
+        "ghcr.io/an-hosting/yolks:n8n_stable": "n8n Stable (0.237.0)"
     },
     "file_denylist": [],
-    "startup": "./entrypoint.sh",
+    "startup": "node \/usr\/local\/lib\/node_modules\/n8n\/bin\/n8n start",
     "config": {
-        "files": "{}",
-        "startup": {
-            "done": "Editor is now accessible via:",
-            "userInteraction": []
-        },
-        "logs": {
-            "custom": false,
-            "location": "logs/latest.log"
-        },
+        "files": "{\r\n    \"data\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"N8N_PORT\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \"Editor is now accessible via:\",\r\n    \"userInteraction\": []\r\n}",
+        "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
         "stop": "^C"
     },
     "scripts": {
         "installation": {
             "script": null,
-            "container": "alpine:3.18",
+            "container": "alpine:3.4",
             "entrypoint": "ash"
         }
     },
     "variables": [
         {
-            "name": "Port",
+            "name": "N8N Port",
             "description": "Port sur lequel n8n va écouter",
             "env_variable": "N8N_PORT",
             "default_value": "5678",
@@ -116,22 +112,40 @@
             "rules": "required|string|in:http,https"
         },
         {
-            "name": "Hostname",
-            "description": "Nom d'hôte de n8n",
-            "env_variable": "N8N_HOST",
-            "default_value": "localhost",
+            "name": "Webhook URL",
+            "description": "URL pour les webhooks",
+            "env_variable": "WEBHOOK_URL",
+            "default_value": "http://localhost:5678/",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string"
         },
         {
-            "name": "Editor Base URL",
-            "description": "URL de base de l'éditeur n8n",
-            "env_variable": "N8N_EDITOR_BASE_URL",
-            "default_value": "http://localhost:5678",
+            "name": "Basic Auth Active",
+            "description": "Activer l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_ACTIVE",
+            "default_value": "false",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string"
+            "rules": "required|string|in:true,false"
+        },
+        {
+            "name": "Basic Auth User",
+            "description": "Utilisateur pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
+        },
+        {
+            "name": "Basic Auth Password",
+            "description": "Mot de passe pour l'authentification basique",
+            "env_variable": "N8N_BASIC_AUTH_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required_if:N8N_BASIC_AUTH_ACTIVE,true"
         },
         {
             "name": "Encryption Key",
@@ -141,6 +155,15 @@
             "user_viewable": true,
             "user_editable": true,
             "rules": "string|min:8"
+        },
+        {
+            "name": "Execution Mode",
+            "description": "Mode d'exécution (regular ou queue)",
+            "env_variable": "EXECUTIONS_MODE",
+            "default_value": "regular",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:regular,queue"
         }
     ]
-} 
+}
