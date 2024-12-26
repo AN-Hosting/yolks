@@ -3,10 +3,8 @@ FROM docker.n8n.io/n8nio/n8n:0.237.0
 LABEL author="AN-Hosting" maintainer="contact@an-hosting.fr"
 
 # Installation des dépendances système nécessaires
-RUN apt-get update && apt-get install -y \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    curl
 
 # Création du dossier pour les données persistantes
 RUN mkdir -p /home/node/.n8n
