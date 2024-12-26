@@ -42,7 +42,7 @@ jobs:
         with:
           context: ./n8n
           file: ./n8n/n8n_${{ matrix.version }}/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: false
           load: true
           tags: |
