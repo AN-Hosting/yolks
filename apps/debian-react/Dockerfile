@@ -14,6 +14,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Mise à jour de npm vers une version compatible avec Node.js 18
+RUN npm install -g npm@10.2.4
+
 # Configuration npm pour l'utilisateur container
 RUN mkdir -p /home/container/.npm && \
     chown -R container:container /home/container/.npm
