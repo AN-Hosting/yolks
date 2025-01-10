@@ -4,7 +4,7 @@ LABEL maintainer="your-email@example.com"
 LABEL org.opencontainers.image.source="https://github.com/your-repo/your-project"
 
 USER root
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Installation de Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -17,10 +17,12 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 # Vérification des versions
 RUN node --version && npm --version
 
-USER container
-WORKDIR /home/container
-
+# Copie et configuration de l'entrypoint avant de changer d'utilisateur
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Configuration de l'utilisateur à la fin
+USER container
+WORKDIR /home/container
 
 CMD ["/bin/bash", "/entrypoint.sh"] 
