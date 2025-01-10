@@ -1,4 +1,4 @@
-FROM ghcr.io/an-hosting/installers:debian
+FROM ghcr.io/an-hosting/yolks:nodejs_23
 
 LABEL maintainer="your-email@example.com"
 LABEL org.opencontainers.image.source="https://github.com/your-repo/your-project"
@@ -6,33 +6,18 @@ LABEL org.opencontainers.image.source="https://github.com/your-repo/your-project
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installation de Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get update \
-    && apt-get install -y \
-        nodejs \
+# Mise à jour des paquets et nettoyage
+RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Mise à jour de npm vers une version compatible avec Node.js 18
-RUN npm install -g npm@10.2.4
-
-# Configuration npm pour l'utilisateur container
-RUN mkdir -p /home/container/.npm && \
-    chown -R container:container /home/container/.npm
-
-# Vérification des versions
-RUN node --version && npm --version
-
-# Copie et configuration de l'entrypoint avant de changer d'utilisateur
+# Copie et configuration de l'entrypoint
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Configuration de l'utilisateur à la fin
+# Configuration de l'utilisateur
 USER container
 ENV HOME=/home/container
-ENV NPM_CONFIG_PREFIX=/home/container/.npm
-ENV PATH=$PATH:/home/container/.npm/bin
 WORKDIR /home/container
 
 CMD ["/bin/bash", "/entrypoint.sh"] 
