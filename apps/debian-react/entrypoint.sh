@@ -13,13 +13,20 @@ PARSED=$(echo "${STARTUP}" | sed -e 's/{{/${/g' -e 's/}}/}/g' | eval echo "$(cat
 # Affichage des informations de démarrage
 echo "🟦 Démarrage du conteneur React..."
 echo "🟦 Port configuré: ${PORT}"
-echo "🟦 Exécution de la commande: ${PARSED}"
 
 # Installation des dépendances si nécessaire
 if [ -f package.json ]; then
     echo "📦 Installation des dépendances..."
     npm install
-fi
-
-# Exécution du serveur
-eval ${PARSED} 
+    
+    # Build de l'application
+    echo "🏗️ Construction de l'application..."
+    npm run build
+    
+    # Démarrage du serveur de preview
+    echo "🚀 Démarrage du serveur..."
+    PORT=${REACT_PORT} npm run preview -- --host --port ${REACT_PORT}
+else
+    echo "❌ Aucun package.json trouvé"
+    exit 1
+fi 
