@@ -14,6 +14,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Configuration npm pour l'utilisateur container
+RUN mkdir -p /home/container/.npm && \
+    chown -R container:container /home/container/.npm
+
 # Vérification des versions
 RUN node --version && npm --version
 
@@ -23,6 +27,9 @@ RUN chmod +x /entrypoint.sh
 
 # Configuration de l'utilisateur à la fin
 USER container
+ENV HOME=/home/container
+ENV NPM_CONFIG_PREFIX=/home/container/.npm
+ENV PATH=$PATH:/home/container/.npm/bin
 WORKDIR /home/container
 
 CMD ["/bin/bash", "/entrypoint.sh"] 
